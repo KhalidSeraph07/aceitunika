@@ -1,0 +1,28 @@
+{
+  "name": "aceitunas_v2",
+  "version": "1.0.0",
+  "description": "Sistema de Gestión de Aceitunas migrado a Node.js",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "node --watch app.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@fastify/cookie": "^11.0.2",
+    "@fastify/cors": "^11.2.0",
+    "@fastify/helmet": "^13.0.2",
+    "@fastify/postgres": "^6.0.2",
+    "@fastify/session": "^11.1.1",
+    "@fastify/static": "^9.0.0",
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^17.2.4",
+    "fastify": "^5.2.1",
+    "fastify-plugin": "^5.0.1",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.5"
+  }
+}
