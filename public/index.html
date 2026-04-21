@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Corporación Costa Verde - Iniciar Sesión</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            overflow: hidden;
+        }
+
+        #bg-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 380px;
+            padding: 1.5rem;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2.5rem 2rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .logo-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #111;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+        }
+
+        .logo-subtitle {
+            font-size: 0.85rem;
+            color: #888;
+            margin-top: 0.4rem;
+            font-weight: 500;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .form-group label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #444;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            border: 1.5px solid #e5e5e5;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            background: #fff;
+            transition: all 0.2s ease;
+            color: #222;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #333;
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-group input::placeholder {
+            color: #bbb;
+        }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+
+        .checkbox-wrapper input {
+            width: 15px;
+            height: 15px;
+            accent-color: #333;
+        }
+
+        .checkbox-wrapper span {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .forgot-link {
+            font-size: 0.8rem;
+            color: #666;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .forgot-link:hover {
+            color: #111;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 0.9rem 1.5rem;
+            margin-top: 0.5rem;
+            background: #111;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-submit:hover {
+            background: #333;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .error-message {
+            background: #fff5f5;
+            border: 1px solid #fed7d7;
+            color: #c53030;
+            padding: 0.8rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            text-align: center;
+            display: none;
+            margin-bottom: 1rem;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .demo-box {
+            margin-top: 1.5rem;
+            padding: 0.9rem;
+            background: #f5f5f5;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .demo-box p {
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        .demo-box code {
+            background: #fff;
+            padding: 0.15rem 0.35rem;
+            border-radius: 4px;
+            font-family: 'SF Mono', Consolas, monospace;
+            font-weight: 600;
+            color: #333;
+            font-size: 0.72rem;
+        }
+
+        .card-footer {
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+
+        .card-footer p {
+            font-size: 0.7rem;
+            color: #aaa;
+        }
+
+        .success-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.98);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .success-overlay.show {
+            display: flex;
+        }
+
+        .success-content {
+            text-align: center;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: #111;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+
+        .success-icon svg {
+            width: 40px;
+            height: 40px;
+            stroke: white;
+            stroke-width: 3;
+            fill: none;
+        }
+
+        .success-content h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #111;
+            margin-bottom: 0.5rem;
+        }
+
+        .success-content p {
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .loading-bar {
+            width: 150px;
+            height: 3px;
+            background: #eee;
+            border-radius: 2px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .loading-bar-inner {
+            width: 40%;
+            height: 100%;
+            background: #111;
+            border-radius: 2px;
+            animation: loadingSlide 0.8s ease-in-out infinite;
+        }
+
+        @keyframes loadingSlide {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(350%);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-container {
+                padding: 1rem;
+            }
+
+            .login-card {
+                padding: 2rem 1.5rem;
+            }
+
+            .logo-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="success-overlay" id="successOverlay">
+        <div class="success-content">
+            <div class="success-icon">
+                <svg viewBox="0 0 24 24">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+            </div>
+            <h2>Bienvenido</h2>
+            <p>Ingresando al sistema...</p>
+            <div class="loading-bar">
+                <div class="loading-bar-inner"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="login-card">
+            <div class="logo-section">
+                <div class="logo-title">Corporación Costa Verde</div>
+                <div class="logo-subtitle">Sistema de Gestión</div>
+            </div>
+
+            <div class="error-message" id="errorMessage">
+                Credenciales incorrectas
+            </div>
+
+            <form class="login-form" id="loginForm">
+                <div class="form-group">
+                    <label>Usuario</label>
+                    <input type="text" id="email" placeholder="Ingresa tu usuario" autocomplete="username" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <input type="password" id="password" placeholder="••••••••" autocomplete="current-password"
+                        required>
+                </div>
+
+                <div class="form-options">
+                    <label class="checkbox-wrapper">
+                        <input type="checkbox">
+                        <span>Recordarme</span>
+                    </label>
+                    <a href="#" class="forgot-link">¿Olvidaste tu contraseña?</a>
+                </div>
+
+                <button type="submit" class="btn-submit">Ingresar</button>
+            </form>
+
+            <div class="card-footer">
+                <p>© 2025 Corporación Costa Verde</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== OCEAN WAVE DOTS WITH CURSOR ATTRACTION ==========
+        const canvas = document.getElementById("bg-canvas");
+        const ctx = canvas.getContext("2d");
+
+        let width, height;
+        let particles = [];
+        let time = 0;
+        const particleCount = 800; // More particles
+
+        const mouse = { x: -1000, y: -1000 };
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            initParticles();
+        }
+
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < particleCount; i++) {
+                const x = Math.random() * width;
+                const y = Math.random() * height;
+                particles.push({
+                    ox: x,
+                    oy: y,
+                    x: x,
+                    y: y,
+                    baseSize: 2,
+                    waveOffset: x * 0.01,
+                    breathOffset: Math.random() * Math.PI * 2 // Individual breath phase
+                });
+            }
+        }
+
+        function draw() {
+            time += 0.02;
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#1a1a1a';
+
+            for (const p of particles) {
+                // === OCEAN WAVES - Multiple layers traveling horizontally ===
+                // Primary wave - large slow rolling swell (travels left to right)
+                const wave1 = Math.sin(time * 0.8 - p.ox * 0.006 + p.oy * 0.002) * 18;
+
+                // Secondary wave - medium faster wave (travels opposite direction)
+                const wave2 = Math.sin(time * 1.4 + p.ox * 0.008 - p.oy * 0.001) * 10;
+
+                // Tertiary wave - small ripples on surface
+                const wave3 = Math.sin(time * 2.5 - p.ox * 0.015) * 4;
+
+                // Combined wave effect - only vertical movement like real ocean
+                const totalWaveY = wave1 + wave2 + wave3;
+
+                // === BREATHING EFFECT - Size pulsation ===
+                const breathScale = 1 + Math.sin(time * 2 + p.breathOffset) * 0.3;
+                const currentSize = p.baseSize * breathScale;
+
+                // Base position - waves only affect Y (vertical)
+                let baseX = p.ox;
+                let baseY = p.oy + totalWaveY;
+
+                // === CURSOR GRAVITY (VERY STRONG) ===
+                const dx = mouse.x - baseX;
+                const dy = mouse.y - baseY;
+                const dist = Math.hypot(dx, dy);
+
+                const attractRadius = 450;
+                let targetX = baseX;
+                let targetY = baseY;
+
+                // === EDGE FADE EFFECT ===
+                const fadeMargin = 120;
+                let edgeFade = 1;
+
+                if (p.ox < fadeMargin) {
+                    edgeFade = Math.min(edgeFade, p.ox / fadeMargin);
+                } else if (p.ox > width - fadeMargin) {
+                    edgeFade = Math.min(edgeFade, (width - p.ox) / fadeMargin);
+                }
+                if (p.oy < fadeMargin) {
+                    edgeFade = Math.min(edgeFade, p.oy / fadeMargin);
+                } else if (p.oy > height - fadeMargin) {
+                    edgeFade = Math.min(edgeFade, (height - p.oy) / fadeMargin);
+                }
+
+                // Base alpha
+                let alpha = 0.25 * edgeFade;
+
+                if (dist < attractRadius) {
+                    // VERY STRONG gravity towards cursor (0.95)
+                    const force = Math.pow(1 - dist / attractRadius, 1.3) * 0.95;
+                    targetX = baseX + dx * force;
+                    targetY = baseY + dy * force;
+
+                    // FADE effect - particles closer to cursor fade more (inverted)
+                    const proximityFade = 1 - Math.pow(1 - dist / attractRadius, 2) * 0.6;
+                    alpha = (0.25 + (1 - dist / attractRadius) * 0.75) * proximityFade * Math.max(edgeFade, 0.4);
+                }
+
+                // Smooth interpolation (very responsive)
+                p.x += (targetX - p.x) * 0.18;
+                p.y += (targetY - p.y) * 0.18;
+
+                // Draw point with breathing size
+                ctx.globalAlpha = alpha;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, currentSize, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            requestAnimationFrame(draw);
+        }
+
+        window.addEventListener("mousemove", (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        });
+
+        window.addEventListener("mouseleave", () => {
+            mouse.x = -1000;
+            mouse.y = -1000;
+        });
+
+        window.addEventListener("resize", resize);
+
+        resize();
+        requestAnimationFrame(draw);
+
+        // ========== LOGIN LOGIC ==========
+        // Usa la API PHP para autenticación
+
+        document.getElementById('loginForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const username = document.getElementById('email').value.trim().toLowerCase();
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('errorMessage');
+            const successOverlay = document.getElementById('successOverlay');
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    errorMessage.classList.remove('show');
+                    // Guardar en sessionStorage para compatibilidad
+                    sessionStorage.setItem('isLoggedIn', 'true');
+                    sessionStorage.setItem('userRole', data.user.rol);
+                    sessionStorage.setItem('userName', data.user.nombre);
+                    sessionStorage.setItem('userId', data.user.id);
+                    successOverlay.classList.add('show');
+
+                    setTimeout(() => {
+                        window.location.href = 'entrada_aceituna.html';
+                    }, 1800);
+                } else {
+                    errorMessage.textContent = data.error || 'Credenciales incorrectas';
+                    errorMessage.classList.add('show');
+                    setTimeout(() => {
+                        errorMessage.classList.remove('show');
+                    }, 2500);
+                }
+            } catch (error) {
+                errorMessage.textContent = 'Error de conexión al servidor';
+                errorMessage.classList.add('show');
+                setTimeout(() => {
+                    errorMessage.classList.remove('show');
+                }, 2500);
+            }
+        });
+
+        // Verificar sesión existente
+        if (sessionStorage.getItem('isLoggedIn') === 'true') {
+            window.location.href = 'entrada_aceituna.html';
+        }
+    </script>
+</body>
+
+</html>
