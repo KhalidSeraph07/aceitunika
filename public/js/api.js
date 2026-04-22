@@ -295,6 +295,10 @@ const API = {
                 method: 'POST',
                 body: JSON.stringify(data)
             });
+        },
+
+        async getAlertas() {
+            return API.request('/insumos/alertas');
         }
     },
 
@@ -319,13 +323,21 @@ const API = {
             return API.request('/reportes/inventario');
         },
 
+        async getDashboard() {
+            return API.request('/reportes/dashboard');
+        },
+
+        async getKPIs() {
+            return API.request('/reportes/dashboard/kpis');
+        },
+
         async exportExcel() {
-            const response = await API.request('/reportes/export');
+            const response = await API.request('/reportes/export/excel');
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `reporte_aceitunas_${new Date().toISOString().split('T')[0]}.xls`;
+            a.download = `reporte_aceitunas_${new Date().toISOString().split('T')[0]}.xlsx`;
             a.click();
             window.URL.revokeObjectURL(url);
         },
@@ -345,9 +357,6 @@ const API = {
     // ========== CALIBRES (Precio de Venta) ==========
 
     calibres: {
-        /**
-         * Actualizar precio de venta de un calibre específico
-         */
         async updatePrecioVenta(calibreId, precioVenta) {
             return API.request(`/calibres/${calibreId}/precio-venta`, {
                 method: 'PUT',
@@ -355,10 +364,6 @@ const API = {
             });
         },
 
-        /**
-         * Actualizar múltiples precios de venta
-         * @param {Array} precios - Array de {calibre_id, precio_venta}
-         */
         async updateMultiplePrecios(precios) {
             return API.request('/calibres/precios-venta', {
                 method: 'PUT',
@@ -366,11 +371,43 @@ const API = {
             });
         },
 
-        /**
-         * Obtener precio de venta de un calibre
-         */
         async getPrecioVenta(calibreId) {
             return API.request(`/calibres/${calibreId}/precio-venta`);
+        }
+    },
+
+    users: {
+        async getAll() {
+            return API.request('/users');
+        },
+
+        async getOne(id) {
+            return API.request(`/users/${id}`);
+        },
+
+        async create(data) {
+            return API.request('/users', {
+                method: 'POST',
+                body: JSON.stringify(data)
+            });
+        },
+
+        async update(id, data) {
+            return API.request(`/users/${id}`, {
+                method: 'PUT',
+                body: JSON.stringify(data)
+            });
+        },
+
+        async updatePassword(id, password) {
+            return API.request(`/users/${id}/password`, {
+                method: 'PUT',
+                body: JSON.stringify({ password })
+            });
+        },
+
+        async delete(id) {
+            return API.request(`/users/${id}`, { method: 'DELETE' });
         }
     }
 };

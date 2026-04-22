@@ -1,0 +1,6 @@
+# Cron configuration for Aceitunas SAS backup
+# Instalar con: crontab scripts/crontab.txt
+# O copiar el contenido manualmente: crontab -e
+
+# Backup diario a las 3:00 AM
+0 3 * * * /home/seraph/Escritorio/Aceitunika/entrada_01/scripts/backup.sh >> /home/seraph/Escritorio/Aceitunika/entrada_01/logs/backup.log 2>&1

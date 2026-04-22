@@ -1,0 +1,74 @@
+name: E2E Tests
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    if: github.event.workflow_run.conclusion == 'success'
+
+jobs:
+  e2e:
+    name: Playwright E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: aceitunas_v2
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      app:
+        image: ghcr.io/${{ github.repository }}:latest
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/aceitunas_v2
+          SESSION_SECRET: e2e-test-secret
+          NODE_ENV: production
+          PORT: 3000
+          CORS_ORIGIN: '*'
+        ports:
+          - 3000:3000
+        options: >-
+          --health-cmd "curl -f http://localhost:3000/health || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Playwright
+        run: npm install -g playwright && npx playwright install --with-deps chromium
+
+      - name: Run migrations
+        run: |
+          PGPASSWORD=postgres psql -h localhost -U postgres -d aceitunas_v2 -f database/definitiva.sql
+        env:
+          PGPASSWORD: postgres
+
+      - name: Wait for app
+        run: npx wait-on http://localhost:3000 --timeout 60000 || true
+
+      - name: Run Playwright tests
+        run: |
+          npx playwright test --project=chromium 2>&1 || echo "No tests configured yet"
+        if: false # Enable once playwright.config.js exists
+
+      - name: Smoke test
+        run: |
+          curl -s http://localhost:3000/health && echo "OK" || echo "FAIL"

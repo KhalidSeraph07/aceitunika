@@ -305,13 +305,13 @@ CREATE INDEX idx_puchos_segregacion ON puchos_detalle(color, calibre);
 
 -- 6. Inserción de Datos Iniciales
 
--- Usuarios (Contraseña: 123456 - se recomienda re-hashear en el backend Node.js)
+-- Usuarios (Contraseña: 123456 - hashes generados con bcryptjs de Node.js)
 INSERT INTO usuarios (id, username, password, nombre, rol) VALUES
-(1, 'administracion', '$2y$10$L64eOiGV2XlGs1jJ3VEMZudK9IfAsAFuYhJSO64suChDDEiG2b7Bi', 'Administración', 'admin'),
-(2, 'freddy', '$2y$10$L64eOiGV2XlGs1jJ3VEMZudK9IfAsAFuYhJSO64suChDDEiG2b7Bi', 'Freddy', 'admin'),
-(3, 'yudy', '$2y$10$L64eOiGV2XlGs1jJ3VEMZudK9IfAsAFuYhJSO64suChDDEiG2b7Bi', 'Yudy', 'admin'),
-(4, 'yeny', '$2y$10$XNviG24nglsB0So3xLxh7uFBfqFnaxgB1D.5STA6lesOOBMYRkH9y', 'Ing. Yeny', 'ing_yeny'),
-(5, 'trabajador', '$2y$10$zga63d/tPq7YoVrw8hVVguOx04tN90xFh60spb2h8Ca8f.gAg3tNe', 'Trabajador', 'trabajador');
+(1, 'administracion', '$2b$10$rAKK4sMqaZd9r1v43.qrneHbuXbi83BQOFxxjx30OZ2Tf3iYu/R8i', 'Administración', 'admin'),
+(2, 'freddy', '$2b$10$rAKK4sMqaZd9r1v43.qrneHbuXbi83BQOFxxjx30OZ2Tf3iYu/R8i', 'Freddy', 'admin'),
+(3, 'yudy', '$2b$10$rAKK4sMqaZd9r1v43.qrneHbuXbi83BQOFxxjx30OZ2Tf3iYu/R8i', 'Yudy', 'admin'),
+(4, 'yeny', '$2b$10$WGS0MYVRXRng5e4YAvof8edL45txQq.lJX.ndGQDJ9fphfL/ZC1WC', 'Ing. Yeny', 'ing_yeny'),
+(5, 'trabajador', '$2b$10$onCVlJ0cAvsfmjYkTuQz9eDnXvDtRf36MuViD35ViIfW329y4KJKi', 'Trabajador', 'trabajador');
 
 -- Insumos
 INSERT INTO insumos (id, nombre, unidad) VALUES

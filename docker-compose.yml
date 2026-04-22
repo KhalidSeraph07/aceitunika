@@ -13,7 +13,7 @@ services:
       - "${DB_PORT:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./sql/definitiva.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./database/definitiva.sql:/docker-entrypoint-initdb.d/init.sql
 
   app:
     build: .

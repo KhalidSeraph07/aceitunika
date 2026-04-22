@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/estilos.css?v=2.3">
+    <link rel="stylesheet" href="css/estilos.css?v=3.1">
 
 </head>
 
@@ -92,6 +92,24 @@
                     <path d="M12 6V12L16 14" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
                 Auditoría
+            </div>
+            <div class="nav-item" data-section="dashboard" id="navDashboard" onclick="showSection('dashboard')" style="display:none;">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                    <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                    <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+                    <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+                </svg>
+                Dashboard
+            </div>
+            <div class="nav-item" data-section="usuarios" id="navUsuarios" onclick="showSection('usuarios')" style="display:none;">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                Usuarios
             </div>
         </nav>
 
@@ -1016,6 +1034,59 @@
                     <div id="noRecordMessage" style="display: none; text-align: center; padding: 3rem; color: #94a3b8;">
                         <div style="font-size: 3rem; margin-bottom: 1rem;">📭</div>
                         <p>No hay ventas registradas para el año seleccionado</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Section -->
+            <div class="section-container" id="section-dashboard" style="display:none;">
+                <div class="page-header">
+                    <h1 class="page-title">Dashboard</h1>
+                    <p class="page-subtitle">Resumen operativo de la campaña</p>
+                </div>
+                <div id="dashboardKpis" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.2rem; margin-bottom: 2rem;"></div>
+                <div id="dashboardCharts" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div class="card">
+                        <div class="card-header"><h3 class="card-title">Entradas por Mes (Kg)</h3></div>
+                        <div id="chartEntradas" style="height: 220px; display: flex; align-items: flex-end; gap: 6px; padding: 1rem 1rem 2rem; position: relative;"></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header"><h3 class="card-title">Ventas por Mes (S/)</h3></div>
+                        <div id="chartVentas" style="height: 220px; display: flex; align-items: flex-end; gap: 6px; padding: 1rem 1rem 2rem; position: relative;"></div>
+                    </div>
+                </div>
+                <div class="card" style="margin-top: 1.5rem;">
+                    <div class="card-header"><h3 class="card-title">Top 5 Lotes por Cantidad</h3></div>
+                    <div id="topLotes" style="padding: 1rem;"></div>
+                </div>
+            </div>
+
+            <!-- Usuarios Section -->
+            <div class="section-container" id="section-usuarios" style="display:none;">
+                <div class="page-header">
+                    <h1 class="page-title">Gestión de Usuarios</h1>
+                    <p class="page-subtitle">Administración de cuentas y roles</p>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Usuarios del Sistema</h3>
+                        <button class="btn-add" onclick="openNuevoUsuarioModal()" style="display:none;" id="btnNuevoUsuario">
+                            <span>+</span> Nuevo Usuario
+                        </button>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table" style="min-width: 600px;">
+                            <thead>
+                                <tr>
+                                    <th>Usuario</th>
+                                    <th>Nombre</th>
+                                    <th>Rol</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usuariosTablaBody"></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -1978,10 +2049,10 @@
             </div>
 
             <div class="modal-body">
-                <!-- Información General y Tipo de Envase - Unificados -->
+                <!-- Información General -->
                 <div class="form-section">
-                    <h3 class="form-section-title">Información General y Tipo de Envase</h3>
-                    <div class="form-grid">
+                    <h3 class="form-section-title">Información General</h3>
+                    <div class="form-grid" style="grid-template-columns: repeat(3, 1fr);">
                         <div class="form-group">
                             <label class="form-label">Código de Lote</label>
                             <input type="text" class="form-input" id="codigoLote" placeholder="Ej: LOTE-2024-001">
@@ -2007,112 +2078,106 @@
                             <input type="text" class="form-input" id="lugar" placeholder="Ubicación">
                         </div>
                     </div>
+                </div>
 
-                    <!-- Parámetros de Calidad -->
-                    <div
-                        style="margin-top: 1.2rem; padding: 1rem; background: #f8fafc; border-radius: 10px; border: 1px solid #e2e8f0;">
-                        <h4 style="font-size: 0.85rem; color: #3d4f31; margin-bottom: 0.8rem; font-weight: 600;">
-                            Parámetros de Calidad</h4>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label class="form-label">Acidez (%)</label>
-                                <input type="number" class="form-input" id="acidez" placeholder="0.00" step="0.01">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Grados de Sal (°Bé)</label>
-                                <input type="number" class="form-input" id="gradosSal" placeholder="0.0" step="0.1">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">pH</label>
-                                <input type="number" class="form-input" id="ph" placeholder="0.00" step="0.01" min="0"
-                                    max="14">
-                            </div>
+                <!-- Parámetros de Calidad -->
+                <div class="form-section" style="margin-top: 1rem;">
+                    <h3 class="form-section-title">Parámetros de Calidad</h3>
+                    <div class="form-grid" style="grid-template-columns: repeat(3, 1fr);">
+                        <div class="form-group">
+                            <label class="form-label">Acidez (%)</label>
+                            <input type="number" class="form-input" id="acidez" placeholder="0.00" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Grados de Sal (°Bé)</label>
+                            <input type="number" class="form-input" id="gradosSal" placeholder="0.0" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">pH</label>
+                            <input type="number" class="form-input" id="ph" placeholder="0.00" step="0.01" min="0"
+                                max="14">
                         </div>
                     </div>
+                </div>
 
-                    <!-- Tipo de Envase -->
-                    <div
-                        style="margin-top: 1.2rem; padding: 1rem; background: #f8fafc; border-radius: 10px; border: 1px solid #e2e8f0;">
-                        <h4 style="font-size: 0.85rem; color: #3d4f31; margin-bottom: 0.8rem; font-weight: 600;">Tipo de
-                            Envase</h4>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label class="form-label">Seleccionar Tipo de Envase</label>
-                                <select class="form-select" id="tipoEnvase" onchange="toggleEnvaseFields()">
-                                    <option value="">Seleccionar...</option>
-                                    <option value="margaritos">Margaritos</option>
-                                    <option value="chavitos">Chavitos</option>
-                                    <option value="bidones">Bidones de Exportación</option>
-                                    <option value="tarzas">Tarzas</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Cantidad Total (Kg)</label>
-                                <input type="number" class="form-input" id="cantidad" placeholder="0" step="0.1"
-                                    readonly>
-                            </div>
+                <!-- Tipo de Envase -->
+                <div class="form-section" style="margin-top: 1rem;">
+                    <h3 class="form-section-title">Tipo de Envase</h3>
+                    <div class="form-grid" style="grid-template-columns: repeat(2, 1fr);">
+                        <div class="form-group">
+                            <label class="form-label">Seleccionar Tipo de Envase</label>
+                            <select class="form-select" id="tipoEnvase" onchange="toggleEnvaseFields()">
+                                <option value="">Seleccionar...</option>
+                                <option value="margaritos">Margaritos</option>
+                                <option value="chavitos">Chavitos</option>
+                                <option value="bidones">Bidones de Exportación</option>
+                                <option value="tarzas">Tarzas</option>
+                            </select>
                         </div>
-                        <div class="envase-fields-container" id="envaseFieldsContainer" style="display: none;">
-                            <div class="form-grid" style="margin-top: 1rem;">
-                                <div class="form-group">
-                                    <label class="form-label">Cantidad de Envases</label>
-                                    <input type="number" class="form-input" id="envase_cantidad" placeholder="0"
-                                        oninput="calcularTotalKg()">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Kilos por Envase</label>
-                                    <input type="number" class="form-input" id="envase_kilos" placeholder="0" step="0.1"
-                                        oninput="calcularTotalKg()">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Puchos (Kg)</label>
-                                    <input type="number" class="form-input" id="envase_puchos" placeholder="0"
-                                        step="0.1" oninput="calcularTotalKg()">
-                                </div>
-                            </div>
-                            <div class="total-kg-display" style="margin-top: 1rem;">
-                                <span>Total Calculado:</span>
-                                <strong id="totalKgCalculado">0 Kg</strong>
-                            </div>
+                        <div class="form-group">
+                            <label class="form-label">Cantidad Total (Kg)</label>
+                            <input type="number" class="form-input" id="cantidad" placeholder="0" step="0.1"
+                                readonly>
                         </div>
                     </div>
-
-                    <!-- Transporte -->
-                    <div
-                        style="margin-top: 1.2rem; padding: 1rem; background: #f8fafc; border-radius: 10px; border: 1px solid #e2e8f0;">
-                        <h4 style="font-size: 0.85rem; color: #3d4f31; margin-bottom: 0.8rem; font-weight: 600;">
-                            Transporte
-                        </h4>
-                        <div class="form-grid">
+                    <div class="envase-fields-container" id="envaseFieldsContainer" style="display: none; margin-top: 1rem;">
+                        <div class="form-grid" style="grid-template-columns: repeat(3, 1fr);">
                             <div class="form-group">
-                                <label class="form-label">Conductor</label>
-                                <select class="form-select" id="transporteConductor">
-                                    <option value="">Seleccionar...</option>
-                                    <option value="costa_verde">Empresa Costa Verde</option>
-                                    <option value="mario">Mario</option>
-                                    <option value="john">John</option>
-                                    <option value="otro">Otro</option>
-                                </select>
+                                <label class="form-label">Cantidad de Envases</label>
+                                <input type="number" class="form-input" id="envase_cantidad" placeholder="0"
+                                    oninput="calcularTotalKg()">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Numero de Viajes</label>
-                                <input type="number" class="form-input" id="transporteViajes" placeholder="0"
-                                    oninput="calcularTotalTransporte()">
+                                <label class="form-label">Kilos por Envase</label>
+                                <input type="number" class="form-input" id="envase_kilos" placeholder="0" step="0.1"
+                                    oninput="calcularTotalKg()">
                             </div>
-                            <div class="form-group solo-admin">
-                                <label class="form-label">Costo por Viaje (S/)</label>
-                                <input type="number" class="form-input" id="transporteCostoViaje" placeholder="0.00"
-                                    step="0.01" oninput="calcularTotalTransporte()">
-                            </div>
-                            <div class="form-group solo-admin">
-                                <label class="form-label">Total Transporte (S/)</label>
-                                <input type="text" class="form-input" id="transporteTotal" placeholder="S/0.00" readonly
-                                    style="background: #f0f9e8; font-weight: 600; color: #3d4f31;">
+                            <div class="form-group">
+                                <label class="form-label">Puchos (Kg)</label>
+                                <input type="number" class="form-input" id="envase_puchos" placeholder="0"
+                                    step="0.1" oninput="calcularTotalKg()">
                             </div>
                         </div>
+                        <div class="total-kg-display" style="margin-top: 1rem;">
+                            <span>Total Calculado:</span>
+                            <strong id="totalKgCalculado">0 Kg</strong>
+                        </div>
                     </div>
+                </div>
 
-                    <!-- Personal de Calibración por Turnos -->
+                <!-- Transporte -->
+                <div class="form-section" style="margin-top: 1rem;">
+                    <h3 class="form-section-title">Transporte</h3>
+                    <div class="form-grid" style="grid-template-columns: repeat(2, 1fr);">
+                        <div class="form-group">
+                            <label class="form-label">Conductor</label>
+                            <select class="form-select" id="transporteConductor">
+                                <option value="">Seleccionar...</option>
+                                <option value="costa_verde">Empresa Costa Verde</option>
+                                <option value="mario">Mario</option>
+                                <option value="john">John</option>
+                                <option value="otro">Otro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Numero de Viajes</label>
+                            <input type="number" class="form-input" id="transporteViajes" placeholder="0"
+                                oninput="calcularTotalTransporte()">
+                        </div>
+                        <div class="form-group solo-admin">
+                            <label class="form-label">Costo por Viaje (S/)</label>
+                            <input type="number" class="form-input" id="transporteCostoViaje" placeholder="0.00"
+                                step="0.01" oninput="calcularTotalTransporte()">
+                        </div>
+                        <div class="form-group solo-admin">
+                            <label class="form-label">Total Transporte (S/)</label>
+                            <input type="text" class="form-input" id="transporteTotal" placeholder="S/0.00" readonly
+                                style="background: #f0f9e8; font-weight: 600; color: #3d4f31;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Personal de Calibración por Turnos -->
                     <div id="seccionPersonalCalibracion"
                         style="margin-top: 1.2rem; padding: 1rem; background: #f8fafc; border-radius: 10px; border: 1px solid #e2e8f0;">
                         <div
@@ -2170,12 +2235,18 @@
                                             step="0.01" oninput="calcularCostoPersonalTurnos()">
                                     </div>
                                     <div class="form-group">
-                                        <label class="form-label" style="font-size: 0.65rem;">Ingreso</label>
+                                        <label class="form-label" style="font-size: 0.65rem; display: flex; align-items: center; gap: 4px;">
+                                            Ingreso
+                                            <span class="time-clock" onclick="document.getElementById('ingresoVaronesManana').showPicker?.() || document.getElementById('ingresoVaronesManana').focus()">🕐</span>
+                                        </label>
                                         <input type="time" class="form-input p-ingreso" id="ingresoVaronesManana"
                                             oninput="calcularCostoPersonalTurnos()">
                                     </div>
                                     <div class="form-group">
-                                        <label class="form-label" style="font-size: 0.65rem;">Salida</label>
+                                        <label class="form-label" style="font-size: 0.65rem; display: flex; align-items: center; gap: 4px;">
+                                            Salida
+                                            <span class="time-clock" onclick="document.getElementById('salidaVaronesManana').showPicker?.() || document.getElementById('salidaVaronesManana').focus()">🕐</span>
+                                        </label>
                                         <input type="time" class="form-input p-salida" id="salidaVaronesManana"
                                             oninput="calcularCostoPersonalTurnos()">
                                     </div>
@@ -2218,12 +2289,18 @@
                                             step="0.01" oninput="calcularCostoPersonalTurnos()">
                                     </div>
                                     <div class="form-group">
-                                        <label class="form-label" style="font-size: 0.65rem;">Ingreso</label>
+                                        <label class="form-label" style="font-size: 0.65rem; display: flex; align-items: center; gap: 4px;">
+                                            Ingreso
+                                            <span class="time-clock" onclick="document.getElementById('ingresoMujeresManana').showPicker?.() || document.getElementById('ingresoMujeresManana').focus()">🕐</span>
+                                        </label>
                                         <input type="time" class="form-input p-ingreso" id="ingresoMujeresManana"
                                             oninput="calcularCostoPersonalTurnos()">
                                     </div>
                                     <div class="form-group">
-                                        <label class="form-label" style="font-size: 0.65rem;">Salida</label>
+                                        <label class="form-label" style="font-size: 0.65rem; display: flex; align-items: center; gap: 4px;">
+                                            Salida
+                                            <span class="time-clock" onclick="document.getElementById('salidaMujeresManana').showPicker?.() || document.getElementById('salidaMujeresManana').focus()">🕐</span>
+                                        </label>
                                         <input type="time" class="form-input p-salida" id="salidaMujeresManana"
                                             oninput="calcularCostoPersonalTurnos()">
                                     </div>
@@ -2278,12 +2355,18 @@
                                             step="0.01" oninput="calcularCostoPersonalTurnos()">
                                     </div>
                                     <div class="form-group">
-                                        <label class="form-label" style="font-size: 0.65rem;">Ingreso</label>
+                                        <label class="form-label" style="font-size: 0.65rem; display: flex; align-items: center; gap: 4px;">
+                                            Ingreso
+                                            <span class="time-clock" onclick="document.getElementById('ingresoVaronesTarde').showPicker?.() || document.getElementById('ingresoVaronesTarde').focus()">🕐</span>
+                                        </label>
                                         <input type="time" class="form-input p-ingreso" id="ingresoVaronesTarde"
                                             oninput="calcularCostoPersonalTurnos()">
                                     </div>
                                     <div class="form-group">
-                                        <label class="form-label" style="font-size: 0.65rem;">Salida</label>
+                                        <label class="form-label" style="font-size: 0.65rem; display: flex; align-items: center; gap: 4px;">
+                                            Salida
+                                            <span class="time-clock" onclick="document.getElementById('salidaVaronesTarde').showPicker?.() || document.getElementById('salidaVaronesTarde').focus()">🕐</span>
+                                        </label>
                                         <input type="time" class="form-input p-salida" id="salidaVaronesTarde"
                                             oninput="calcularCostoPersonalTurnos()">
                                     </div>
@@ -2326,12 +2409,18 @@
                                             step="0.01" oninput="calcularCostoPersonalTurnos()">
                                     </div>
                                     <div class="form-group">
-                                        <label class="form-label" style="font-size: 0.65rem;">Ingreso</label>
+                                        <label class="form-label" style="font-size: 0.65rem; display: flex; align-items: center; gap: 4px;">
+                                            Ingreso
+                                            <span class="time-clock" onclick="document.getElementById('ingresoMujeresTarde').showPicker?.() || document.getElementById('ingresoMujeresTarde').focus()">🕐</span>
+                                        </label>
                                         <input type="time" class="form-input p-ingreso" id="ingresoMujeresTarde"
                                             oninput="calcularCostoPersonalTurnos()">
                                     </div>
                                     <div class="form-group">
-                                        <label class="form-label" style="font-size: 0.65rem;">Salida</label>
+                                        <label class="form-label" style="font-size: 0.65rem; display: flex; align-items: center; gap: 4px;">
+                                            Salida
+                                            <span class="time-clock" onclick="document.getElementById('salidaMujeresTarde').showPicker?.() || document.getElementById('salidaMujeresTarde').focus()">🕐</span>
+                                        </label>
                                         <input type="time" class="form-input p-salida" id="salidaMujeresTarde"
                                             oninput="calcularCostoPersonalTurnos()">
                                     </div>
@@ -2386,12 +2475,18 @@
                                             step="0.01" oninput="calcularCostoPersonalTurnos()">
                                     </div>
                                     <div class="form-group">
-                                        <label class="form-label" style="font-size: 0.65rem;">Ingreso</label>
+                                        <label class="form-label" style="font-size: 0.65rem; display: flex; align-items: center; gap: 4px;">
+                                            Ingreso
+                                            <span class="time-clock" onclick="document.getElementById('ingresoVaronesNoche').showPicker?.() || document.getElementById('ingresoVaronesNoche').focus()">🕐</span>
+                                        </label>
                                         <input type="time" class="form-input p-ingreso" id="ingresoVaronesNoche"
                                             oninput="calcularCostoPersonalTurnos()">
                                     </div>
                                     <div class="form-group">
-                                        <label class="form-label" style="font-size: 0.65rem;">Salida</label>
+                                        <label class="form-label" style="font-size: 0.65rem; display: flex; align-items: center; gap: 4px;">
+                                            Salida
+                                            <span class="time-clock" onclick="document.getElementById('salidaVaronesNoche').showPicker?.() || document.getElementById('salidaVaronesNoche').focus()">🕐</span>
+                                        </label>
                                         <input type="time" class="form-input p-salida" id="salidaVaronesNoche"
                                             oninput="calcularCostoPersonalTurnos()">
                                     </div>
@@ -2434,12 +2529,18 @@
                                             step="0.01" oninput="calcularCostoPersonalTurnos()">
                                     </div>
                                     <div class="form-group">
-                                        <label class="form-label" style="font-size: 0.65rem;">Ingreso</label>
+                                        <label class="form-label" style="font-size: 0.65rem; display: flex; align-items: center; gap: 4px;">
+                                            Ingreso
+                                            <span class="time-clock" onclick="document.getElementById('ingresoMujeresNoche').showPicker?.() || document.getElementById('ingresoMujeresNoche').focus()">🕐</span>
+                                        </label>
                                         <input type="time" class="form-input p-ingreso" id="ingresoMujeresNoche"
                                             oninput="calcularCostoPersonalTurnos()">
                                     </div>
                                     <div class="form-group">
-                                        <label class="form-label" style="font-size: 0.65rem;">Salida</label>
+                                        <label class="form-label" style="font-size: 0.65rem; display: flex; align-items: center; gap: 4px;">
+                                            Salida
+                                            <span class="time-clock" onclick="document.getElementById('salidaMujeresNoche').showPicker?.() || document.getElementById('salidaMujeresNoche').focus()">🕐</span>
+                                        </label>
                                         <input type="time" class="form-input p-salida" id="salidaMujeresNoche"
                                             oninput="calcularCostoPersonalTurnos()">
                                     </div>
@@ -2571,9 +2672,8 @@
                             placeholder="Ingrese observaciones adicionales..." rows="3"
                             style="resize: vertical; min-height: 80px;"></textarea>
                     </div>
-                </div>
 
-                <!-- Color Selection -->
+                    <!-- Color Selection -->
                 <div class="form-section">
                     <h3 class="form-section-title">Selección de Color</h3>
                     <div class="color-selection">
@@ -3194,6 +3294,48 @@
             <div class="modal-footer">
                 <button class="btn btn-cancel" onclick="closeDateInputModal()">Cancelar</button>
                 <button class="btn btn-save" onclick="confirmDateInput()">Agregar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Usuario Nuevo/Editar -->
+    <div class="modal-overlay" id="usuarioModalOverlay" style="display:none;">
+        <div class="modal" style="max-width:480px">
+            <div class="modal-header">
+                <h2 id="usuarioModalTitulo">Nuevo Usuario</h2>
+                <button class="btn-close" onclick="closeUsuarioModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" id="usuarioUsername" class="form-input" placeholder="ej: jgarcia">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Nombre Completo</label>
+                    <input type="text" id="usuarioNombre" class="form-input" placeholder="ej: José García">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Rol</label>
+                    <select id="usuarioRol" class="form-select">
+                        <option value="trabajador">Trabajador</option>
+                        <option value="ing_yeny">Ing. Yeny</option>
+                        <option value="admin">Administrador</option>
+                    </select>
+                </div>
+                <div class="form-group" id="usuarioPasswordGroup">
+                    <label class="form-label">Contraseña</label>
+                    <input type="password" id="usuarioPassword" class="form-input" placeholder="Mínimo 6 caracteres">
+                </div>
+                <div class="form-group">
+                    <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
+                        <input type="checkbox" id="usuarioActivo" checked style="width:16px;height:16px;">
+                        Usuario activo
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-cancel" onclick="closeUsuarioModal()">Cancelar</button>
+                <button class="btn btn-save" onclick="guardarUsuario()">Guardar</button>
             </div>
         </div>
     </div>

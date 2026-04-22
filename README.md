@@ -38,6 +38,7 @@ npm run dev            # iniciar en desarrollo
 | `DB_PASSWORD` | Contraseña de PostgreSQL | `postgres` |
 | `SESSION_SECRET` | Secreto para sesiones | (cadena larga) |
 | `NODE_ENV` | Entorno | `development` o `production` |
+| `CORS_ORIGIN` | Origen permitido para CORS | `*` (dev) o `https://tudominio.com` |
 
 ## Correr el proyecto
 

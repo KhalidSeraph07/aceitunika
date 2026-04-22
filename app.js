@@ -7,7 +7,7 @@ fastify.register(require('@fastify/helmet'), {
     contentSecurityPolicy: false // Ajustar según necesidades del frontend
 });
 fastify.register(require('@fastify/cors'), {
-    origin: '*', // En producción, especificar dominios
+    origin: process.env.CORS_ORIGIN || '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE']
 });
 
@@ -31,6 +31,7 @@ fastify.register(require('./app/routes/reportes'), { prefix: '/api/reportes' });
 fastify.register(require('./app/routes/historial'), { prefix: '/api/historial' });
 fastify.register(require('./app/routes/calibres'), { prefix: '/api/calibres' });
 fastify.register(require('./app/routes/prestamos'), { prefix: '/api/prestamos' });
+fastify.register(require('./app/routes/users'), { prefix: '/api/users' });
 
 // 5. Middleware global de manejo de errores
 fastify.setErrorHandler((error, request, reply) => {

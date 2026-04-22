@@ -386,6 +386,12 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Initialize cuadrantes
     initCuadrantes();
 
+    // Initialize dashboard and users (admin only)
+    if (esAdmin()) {
+        initDashboard();
+        initUsuarios();
+    }
+
     // Initialize title bar with username and time
     updateTitleBar();
 });
@@ -448,6 +454,15 @@ function aplicarRestriccionesRol() {
             seccionCalibracion.style.display = 'none';
         }
     }
+
+    // Dashboard y Gestión de Usuarios solo para admin
+    if (esAdmin()) {
+        const dashNav = document.getElementById('navDashboard');
+        const usuariosNav = document.getElementById('navUsuarios');
+        const btnNuevoUsuario = document.getElementById('btnNuevoUsuario');
+        if (dashNav) dashNav.style.display = 'flex';
+        if (usuariosNav) { usuariosNav.style.display = 'flex'; if (btnNuevoUsuario) btnNuevoUsuario.style.display = 'inline-flex'; }
+    }
 }
 
 // ========== ALMACÉN FUNCTIONS ==========
@@ -483,6 +498,192 @@ async function cargarAlmacenDesdeAPI() {
         console.error('Error cargando almacén:', error);
         almacenData = { filas: [] };
     }
+}
+
+    }
+}
+
+// ========== DASHBOARD ==========
+async function initDashboard() {
+    const container = document.getElementById('section-dashboard');
+    if (!container || container.style.display === 'none') return;
+    await cargarDashboardKPIs();
+    await cargarDashboardCharts();
+}
+
+async function cargarDashboardKPIs() {
+    try {
+        const data = await API.reportes.getDashboard();
+        const kpis = document.getElementById('dashboardKpis');
+        if (!kpis) return;
+        const cards = [
+            { label: 'Entradas Hoy', value: data.resumen.entradasHoy, icon: '📥', color: '#2D6A4F' },
+            { label: 'Entradas Mes', value: data.resumen.entradasMes, icon: '📆', color: '#1B4332' },
+            { label: 'Kg Mes', value: (data.resumen.kgMes || 0).toLocaleString('es-PE', {maximumFractionDigits: 0}), icon: '⚖️', color: '#40916C' },
+            { label: 'Stock Almacén', value: (data.resumen.stockAlmacen || 0).toLocaleString('es-PE', {maximumFractionDigits: 0}), icon: '🏭', color: '#52B788' },
+            { label: 'Ventas Mes', value: data.resumen.ventasMes, icon: '💰', color: '#74C69D' },
+            { label: 'Monto Ventas', value: 'S/ ' + (data.resumen.montoVentasMes || 0).toLocaleString('es-PE', {minimumFractionDigits: 2}), icon: '📊', color: '#95D5B2' },
+            { label: 'Préstamos Activos', value: data.resumen.prestamosActivos, icon: '🔄', color: '#B7E4C7' },
+            { label: 'Alertas Stock', value: data.resumen.alertasStock, icon: '⚠️', color: data.resumen.alertasStock > 0 ? '#DC2626' : '#6B7280' }
+        ];
+        kpis.innerHTML = cards.map(c => `
+            <div style="background: linear-gradient(135deg, ${c.color}22, ${c.color}11); border: 1px solid ${c.color}44; border-radius: 14px; padding: 1.2rem; position: relative; overflow: hidden;">
+                <div style="position: absolute; top: -8px; right: -8px; font-size: 2.5rem; opacity: 0.12;">${c.icon}</div>
+                <div style="font-size: 0.7rem; text-transform: uppercase; font-weight: 700; color: ${c.color}; margin-bottom: 0.4rem; letter-spacing: 0.05em;">${c.label}</div>
+                <div style="font-size: 1.6rem; font-weight: 700; color: ${c.color};">${c.value}</div>
+            </div>
+        `).join('');
+    } catch (e) { console.error('Error dashboard KPIs:', e); }
+}
+
+async function cargarDashboardCharts() {
+    try {
+        const data = await API.reportes.getDashboard();
+
+        // Bar chart for entradas
+        const chartEntradas = document.getElementById('chartEntradas');
+        if (chartEntradas && data.entradasPorMes && data.entradasPorMes.length > 0) {
+            const maxKg = Math.max(...data.entradasPorMes.map(m => parseFloat(m.kg) || 0));
+            chartEntradas.innerHTML = data.entradasPorMes.map(m => {
+                const pct = maxKg > 0 ? (parseFloat(m.kg) / maxKg * 100) : 0;
+                const mesLabel = new Date(m.mes).toLocaleDateString('es-PE', {month: 'short', year: '2-digit'});
+                return `<div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;">
+                    <div style="width: 100%; background: #e2e8f0; border-radius: 6px; height: 160px; position: relative; display: flex; align-items: flex-end;">
+                        <div style="width: 100%; background: linear-gradient(180deg, #2D6A4F, #52B788); border-radius: 6px 6px 0 0; height: ${pct}%; min-height: 4px;" title="${parseFloat(m.kg).toLocaleString('es-PE')} kg"></div>
+                    </div>
+                    <div style="font-size: 0.65rem; color: #64748b;">${mesLabel}</div>
+                </div>`;
+            }).join('');
+        }
+
+        // Bar chart for ventas
+        const chartVentas = document.getElementById('chartVentas');
+        if (chartVentas && data.ventasPorMes && data.ventasPorMes.length > 0) {
+            const maxMonto = Math.max(...data.ventasPorMes.map(m => parseFloat(m.monto) || 0));
+            chartVentas.innerHTML = data.ventasPorMes.map(m => {
+                const pct = maxMonto > 0 ? (parseFloat(m.monto) / maxMonto * 100) : 0;
+                const mesLabel = new Date(m.mes).toLocaleDateString('es-PE', {month: 'short', year: '2-digit'});
+                return `<div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;">
+                    <div style="width: 100%; background: #e2e8f0; border-radius: 6px; height: 160px; position: relative; display: flex; align-items: flex-end;">
+                        <div style="width: 100%; background: linear-gradient(180deg, #1B4332, #74C69D); border-radius: 6px 6px 0 0; height: ${pct}%; min-height: 4px;" title="S/ ${parseFloat(m.monto).toLocaleString('es-PE')}"></div>
+                    </div>
+                    <div style="font-size: 0.65rem; color: #64748b;">${mesLabel}</div>
+                </div>`;
+            }).join('');
+        }
+
+        // Top lotes
+        const topLotes = document.getElementById('topLotes');
+        if (topLotes && data.topLotes && data.topLotes.length > 0) {
+            topLotes.innerHTML = `<table style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
+                <thead><tr style="background: #f1f5f9;"><th style="padding: 0.6rem 1rem; text-align: left; color: #64748b;">Lote</th><th style="padding: 0.6rem 1rem; text-align: right; color: #64748b;">Kg</th><th style="padding: 0.6rem 1rem; text-align: left; color: #64748b;">Fecha</th></tr></thead>
+                <tbody>${data.topLotes.map((l, i) => `<tr style="background: ${i % 2 ? '#f8fafc' : '#fff'};">
+                    <td style="padding: 0.6rem 1rem;">${l.codigoLote || l.codigo_lote}</td>
+                    <td style="padding: 0.6rem 1rem; text-align: right; font-weight: 600;">${(l.cantidad || 0).toLocaleString('es-PE')}</td>
+                    <td style="padding: 0.6rem 1rem; color: #64748b;">${l.fecha ? new Date(l.fecha).toLocaleDateString('es-PE') : '-'}</td>
+                </tr>`).join('')}</tbody></table>`;
+        } else if (topLotes) {
+            topLotes.innerHTML = '<p style="color: #94a3b8; text-align: center; padding: 1rem;">Sin datos de lotes</p>';
+        }
+    } catch (e) { console.error('Error dashboard charts:', e); }
+}
+
+// ========== GESTIÓN DE USUARIOS ==========
+let editingUsuarioId = null;
+
+async function initUsuarios() {
+    const container = document.getElementById('section-usuarios');
+    if (!container || container.style.display === 'none') return;
+    await cargarUsuariosTabla();
+}
+
+async function cargarUsuariosTabla() {
+    try {
+        const usuarios = await API.users.getAll();
+        const tbody = document.getElementById('usuariosTablaBody');
+        if (!tbody) return;
+        tbody.innerHTML = usuarios.map(u => {
+            const rolColors = { admin: '#1B4332', ing_yeny: '#7c3aed', trabajador: '#3b82f6' };
+            const rolColor = rolColors[u.rol] || '#6B7280';
+            return `<tr>
+                <td style="padding: 0.75rem 1rem; font-weight: 600;">${u.username}</td>
+                <td style="padding: 0.75rem 1rem;">${u.nombre}</td>
+                <td style="padding: 0.75rem 1rem;"><span style="background: ${rolColor}22; color: ${rolColor}; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">${u.rol}</span></td>
+                <td style="padding: 0.75rem 1rem;"><span style="color: ${u.activo ? '#16a34a' : '#dc2626'}; font-weight: 600;">${u.activo ? 'Activo' : 'Inactivo'}</span></td>
+                <td style="padding: 0.75rem 1rem; display: flex; gap: 0.5rem;">
+                    <button class="btn-add" style="padding: 0.3rem 0.8rem; font-size: 0.75rem;" onclick="editarUsuario(${u.id})">Editar</button>
+                    <button class="btn-add" style="padding: 0.3rem 0.8rem; font-size: 0.75rem; background: linear-gradient(135deg, #dc2626, #ef4444);" onclick="confirmarEliminarUsuario(${u.id}, '${u.username}')">Eliminar</button>
+                </td>
+            </tr>`;
+        }).join('');
+    } catch (e) { console.error('Error cargando usuarios:', e); }
+}
+
+function openNuevoUsuarioModal() {
+    editingUsuarioId = null;
+    document.getElementById('usuarioModalTitulo').textContent = 'Nuevo Usuario';
+    document.getElementById('usuarioUsername').value = '';
+    document.getElementById('usuarioNombre').value = '';
+    document.getElementById('usuarioRol').value = 'trabajador';
+    document.getElementById('usuarioPassword').value = '';
+    document.getElementById('usuarioActivo').checked = true;
+    document.getElementById('usuarioPasswordGroup').style.display = 'block';
+    document.getElementById('usuarioModalOverlay').style.display = 'flex';
+}
+
+function editarUsuario(id) {
+    editingUsuarioId = id;
+    document.getElementById('usuarioModalTitulo').textContent = 'Editar Usuario';
+    document.getElementById('usuarioPassword').value = '';
+    document.getElementById('usuarioPassword').placeholder = 'Dejar vacío para no cambiar';
+    document.getElementById('usuarioPasswordGroup').style.display = 'block';
+    API.users.getOne(id).then(u => {
+        document.getElementById('usuarioUsername').value = u.username;
+        document.getElementById('usuarioNombre').value = u.nombre;
+        document.getElementById('usuarioRol').value = u.rol;
+        document.getElementById('usuarioActivo').checked = u.activo;
+        document.getElementById('usuarioModalOverlay').style.display = 'flex';
+    }).catch(e => showToast('Error', 'No se pudo cargar usuario', 'error'));
+}
+
+function closeUsuarioModal() {
+    document.getElementById('usuarioModalOverlay').style.display = 'none';
+    editingUsuarioId = null;
+}
+
+async function guardarUsuario() {
+    const username = document.getElementById('usuarioUsername').value.trim();
+    const nombre = document.getElementById('usuarioNombre').value.trim();
+    const rol = document.getElementById('usuarioRol').value;
+    const password = document.getElementById('usuarioPassword').value;
+    const activo = document.getElementById('usuarioActivo').checked;
+
+    if (!username || !nombre) { showToast('Error', 'Username y nombre son requeridos', 'error'); return; }
+
+    try {
+        if (editingUsuarioId) {
+            const data = { nombre, rol, activo };
+            if (password) await API.users.updatePassword(editingUsuarioId, password);
+            await API.users.update(editingUsuarioId, data);
+            showToast('Éxito', 'Usuario actualizado', 'success');
+        } else {
+            if (!password || password.length < 6) { showToast('Error', 'Contraseña mínimo 6 caracteres', 'error'); return; }
+            await API.users.create({ username, password, nombre, rol });
+            showToast('Éxito', 'Usuario creado', 'success');
+        }
+        closeUsuarioModal();
+        await cargarUsuariosTabla();
+    } catch (e) { showToast('Error', e.message || 'Error guardando usuario', 'error'); }
+}
+
+function confirmarEliminarUsuario(id, username) {
+    showConfirm(`¿Eliminar usuario "${username}"?`, async () => {
+        try {
+            await API.users.delete(id);
+            showToast('Éxito', 'Usuario eliminado', 'success');
+            await cargarUsuariosTabla();
+        } catch (e) { showToast('Error', e.message || 'Error eliminando usuario', 'error'); }
+    });
 }
 
 function initCuadrantes() {
